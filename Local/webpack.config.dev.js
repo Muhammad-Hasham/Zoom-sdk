@@ -38,11 +38,18 @@ module.exports = {
       _: 'lodash' 
     }),
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('development'),
-      'process.env.BABEL_ENV': JSON.stringify('development'),
+      'process.env.NODE_ENV': JSON.stringify('production'),
+      'process.env.BABEL_ENV': JSON.stringify('production'),
     })
   ],
   context: __dirname,
   target: 'web',
-  mode: 'development',
+  mode: 'production',
+  devServer: {
+    contentBase: path.join(__dirname, 'public'),
+    compress: true,
+    port: 9999,
+    allowedHosts: 'all',
+    disableHostCheck: true, // Add this line if needed
+  }
 };
