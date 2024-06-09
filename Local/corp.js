@@ -11,52 +11,56 @@ function runFunc(err) {
   if (err) {
     console.log(err);
   }
-  console.log(`Listening at ${https ? 'https' : 'http'}://localhost:9999/index.html`);
+  console.log('Listening at http://127.0.0.1:9999/index.html');
 }
 
-const devServerOptions = {
-  port: 9999,
-  host: 'localhost', // Change '0.0.0.0' to 'localhost'
-  open: true, // Use 'true' to open the default browser
-  https: https ? {
-    cert: fs.readFileSync('./localhost.crt'),
-    key: fs.readFileSync('./localhost.key')
-  } : false,
-  headers: {
-    'Cross-Origin-Resource-Policy': 'cross-origin',
-    'Access-Control-Allow-Origin': '*'
+new WebpackDevServer(
+  {
+    port: 9999,
+    host: '0.0.0.0',
+    open: https ? 'https://localhost:9999/' : 'http://127.0.0.1:9999/',
+    server: {
+      type: https ? 'https' : 'http',
+      options: {
+        cert: fs.readFileSync('./localhost.crt'),
+          key: fs.readFileSync('./localhost.key')
+      },
+    },
+    headers: {
+      'Cross-Origin-Resource-Policy': 'cross-origin',
+      'Access-Control-Allow-Origin': '*'
+    },
+    historyApiFallback: true,
+    client: {
+      overlay: false,
+    },
+    proxy: [
+      {
+        path: '/meeting.html',
+        target: 'http://127.0.0.1:9998/'
+      }
+    ],
+    static: './',
+    allowedHosts: 'all'
   },
-  historyApiFallback: true,
-  client: {
-    overlay: false,
-  },
-  proxy: {
-    '/meeting.html': {
-      target: 'http://localhost:9998/', // Update the target to use 'localhost'
-      secure: false, // If using HTTPS, set this to 'true'
-      changeOrigin: true,
-    }
-  },
-  static: './',
-  allowedHosts: 'all'
-};
+  webpack(webpackConfig)
+).start(9999, '0.0.0.0', runFunc);
 
-new WebpackDevServer(devServerOptions, webpack(webpackConfig)).start(9999, 'localhost', runFunc);
-
-const proxyServerOptions = {
-  port: 9998,
-  host: 'localhost', // Change '0.0.0.0' to 'localhost'
-  headers: {
-    'Cross-Origin-Embedder-Policy': 'require-corp',
-    'Cross-Origin-Opener-Policy': 'same-origin',
-    'Cross-Origin-Resource-Policy': 'cross-origin',
-    'Access-Control-Allow-Origin': '*'
+new WebpackDevServer(
+  {
+    port: 9998,
+    host: '0.0.0.0',
+    headers: {
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Resource-Policy': 'cross-origin',
+      'Access-Control-Allow-Origin': '*'
+    },
+    historyApiFallback: true,
+    static: './',
+    client: {
+      overlay: false,
+    },
   },
-  historyApiFallback: true,
-  static: './',
-  client: {
-    overlay: false,
-  },
-};
-
-new WebpackDevServer(proxyServerOptions, webpack(webpackConfig)).start(9998, 'localhost', runFunc);
+  webpack(webpackConfig)
+).start(9998, '0.0.0.0', runFunc);
