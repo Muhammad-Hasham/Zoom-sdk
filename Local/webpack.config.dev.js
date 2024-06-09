@@ -8,7 +8,7 @@ module.exports = {
     meeting: './js/meeting.js'
   },
   output: {
-    path: path.resolve(__dirname, 'static'), // Changed to resolve to an absolute path
+    path: path.resolve(__dirname, 'static'),
     publicPath: '/static/',
     hashDigestLength: 5,
     filename: '[name].min.js'
@@ -38,18 +38,22 @@ module.exports = {
       _: 'lodash' 
     }),
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('production'),
-      'process.env.BABEL_ENV': JSON.stringify('production'),
+      'process.env.NODE_ENV': JSON.stringify('development'),
+      'process.env.BABEL_ENV': JSON.stringify('development'),
     })
   ],
   context: __dirname,
   target: 'web',
-  mode: 'production',
+  mode: 'development',
   devServer: {
-    contentBase: path.join(__dirname, 'public'),
-    compress: true,
-    port: 9999,
-    allowedHosts: 'all',
-    disableHostCheck: true, // Add this line if needed
+    allowedHosts: 'all', // Add this line
+    host: '0.0.0.0', // Allow access from external IPs
+    port: 9999, // Ensure this matches the port your app uses
+    proxy: {
+      '/meeting.html': {
+        target: 'http://127.0.0.1:9998/',
+        secure: false
+      }
+    }
   }
 };
